@@ -1,20 +1,39 @@
 import { Route, Routes } from "react-router-dom";
 import Home from "./pages/Home";
-import About from "./pages/About";
-import NavBar from "./components/NavBar";
-import Demo from "./pages/Demo";
-import Jobs from "./pages/Jobs";
+import FAQ from "./pages/FAQ";
 import Footer from "./components/Footer";
+import Dashboard from "./pages/Projects";
+import Wrapper from "./components/Wrapper";
+import DashboardWrapper from "./components/DashboardWrapper";
+import AddProject from "./pages/AddProject";
+import Project from "./pages/Project";
 
 const App = () => {
   return (
     <div>
-      <NavBar />
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="about" element={<About />} />
-        <Route path="/demo" element={<Demo />} />
-        <Route path="/jobs" element={<Jobs />} />
+        <Route path="/" element={<Wrapper children={<Home />} />} />
+        <Route
+          path="/dashboard"
+          element={
+            <DashboardWrapper children={<Wrapper children={<Dashboard />} />} />
+          }
+        />
+        <Route
+          path="/dashboard/add"
+          element={
+            <DashboardWrapper
+              children={<Wrapper children={<AddProject />} />}
+            />
+          }
+        />
+        <Route
+          path="/dashboard/:uid"
+          element={
+            <DashboardWrapper children={<Wrapper children={<Project />} />} />
+          }
+        />
+        <Route path="/faq" element={<Wrapper children={<FAQ />} />} />
       </Routes>
       <Footer />
     </div>

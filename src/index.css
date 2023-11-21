@@ -24,6 +24,20 @@ a {
   color: #000;
 }
 
+.filebox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #1677ff;
+  width: max-content;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.filebox svg {
+  font-size: 25px;
+  margin-right: 5px;
+}
 @media (max-width: 450px) {
   .mobile {
     display: block;
