@@ -28,7 +28,7 @@ const Wrapper = ({ children }) => {
             items={[
               { key: "1", label: <Link to="/">Home</Link> },
               { key: "2", label: <Link to="/dashboard">Dashboard</Link> },
-              // { key: "3", label: <Link to="/faq">FAQ</Link> },
+              { key: "3", label: <Link to="/faq">FAQ</Link> },
             ]}
           />
         </Flex>
