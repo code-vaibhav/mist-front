@@ -14,7 +14,8 @@ const DashboardWrapper = ({ children }) => {
         style={{
           position: "sticky",
           left: 0,
-          bottom: 0,
+          top: 0,
+          height: "100vh",
         }}
       >
         <Menu
