@@ -4,7 +4,16 @@ import JSZip from "jszip";
 import io from "socket.io-client";
 import FileOutlined from "@ant-design/icons/FileOutlined";
 import DownloadOutlined from "@ant-design/icons/DownloadOutlined";
-import { Typography, Button, Divider, Space, Flex } from "antd";
+import {
+  Typography,
+  Button,
+  Divider,
+  Space,
+  Flex,
+  Row,
+  Col,
+  Image,
+} from "antd";
 
 const socket = io(process.env.REACT_APP_BACKEND_URL);
 
@@ -137,7 +146,7 @@ const Project = () => {
     });
 
     fetchInputs();
-    fetchResults();
+    if (data.status !== "Queued") fetchResults();
   }, [uid]);
 
   const downloadFile = (file) => {
@@ -204,8 +213,10 @@ const Project = () => {
 
   const getSrc = (arr) => {
     return arr
-      ? URL.createObjectURL(arr?.filter((a) => a.name === "animation.gif")[0])
-      : "";
+      ? arr
+          ?.filter((a) => a.name.includes(".jpg"))
+          .map((a) => URL.createObjectURL(a))
+      : [];
   };
 
   return (
@@ -245,11 +256,12 @@ const Project = () => {
       <Divider />
       {Object.keys(inputs)?.map((simName) => (
         <div key={simName}>
-          <Typography.Title level={4}>
-            Simulation Name: {simName}
-          </Typography.Title>
           <Flex justify="space-between" align="start">
             <div>
+              <Typography.Title level={4}>
+                Simulation Name: {simName}
+              </Typography.Title>
+
               <Typography.Title level={4} style={{ marginBottom: "25px" }}>
                 Simulation Files:{" "}
                 <Button
@@ -274,21 +286,23 @@ const Project = () => {
                   <span>{file.name}</span>
                 </Button>
               ))}
-              <Typography.Title level={4} style={{ marginBottom: "25px" }}>
-                Simulation Results:{" "}
-                <Button
-                  type="default"
-                  shape="round"
-                  icon={<DownloadOutlined />}
-                  size="medium"
-                  style={{ marginLeft: "20px" }}
-                  onClick={() =>
-                    downloadZip(inputs[simName], simName, "result")
-                  }
-                >
-                  Download
-                </Button>
-              </Typography.Title>
+              {data.status !== "Queued" && (
+                <Typography.Title level={4} style={{ marginBottom: "25px" }}>
+                  Simulation Results:{" "}
+                  <Button
+                    type="default"
+                    shape="round"
+                    icon={<DownloadOutlined />}
+                    size="medium"
+                    style={{ marginLeft: "20px" }}
+                    onClick={() =>
+                      downloadZip(results[simName], simName, "result")
+                    }
+                  >
+                    Download
+                  </Button>
+                </Typography.Title>
+              )}
               {results[simName]?.map((file) => (
                 <Button
                   type="dashed"
@@ -301,11 +315,21 @@ const Project = () => {
                 </Button>
               ))}
             </div>
-            <img
-              style={{ width: "35%", marginLeft: "5%", maxWidth: "500px" }}
-              src={getSrc(results[simName])}
-              alt="Animated GIF"
-            />
+            <Row>
+              {getSrc(results[simName]).map((url) => (
+                <Col span={12}>
+                  <Image
+                    style={{
+                      width: "100%",
+                      marginLeft: "5%",
+                      maxWidth: "500px",
+                    }}
+                    src={url}
+                    alt="figure"
+                  />
+                </Col>
+              ))}
+            </Row>
           </Flex>
           <Divider />
         </div>
