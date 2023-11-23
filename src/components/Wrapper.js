@@ -1,10 +1,11 @@
 import { Layout, Menu, Typography, Flex } from "antd";
 import { Link, useLocation } from "react-router-dom";
+import Footer from "./Footer";
 
-const { Header, Content } = Layout;
+const { Header, Content, Footer: FooterContainer } = Layout;
 const { Title } = Typography;
 
-const Wrapper = ({ children }) => {
+const Wrapper = ({ children, footer }) => {
   const location = useLocation();
   const currentURL = location.pathname;
 
@@ -12,9 +13,12 @@ const Wrapper = ({ children }) => {
     <Layout style={{ minHeight: "100vh" }}>
       <Header style={{ position: "sticky", top: "0", zIndex: 1000 }}>
         <Flex justify="space-between" align="center">
-          <Title level={3} style={{ color: "white", margin: 0 }}>
-            MIST Simulation
-          </Title>
+          <Link to="/">
+            <Title level={3} style={{ color: "white", margin: 0 }}>
+              MIST Simulation
+            </Title>
+          </Link>
+
           <Menu
             theme="dark"
             mode="horizontal"
@@ -37,11 +41,17 @@ const Wrapper = ({ children }) => {
         style={{
           margin: 0,
           minHeight: "100%",
-          backgroundColor: "whitesmoke",
+          backgroundColor: "white",
+          paddingBottom: "50px",
         }}
       >
         {children}
       </Content>
+      {footer && (
+        <FooterContainer>
+          <Footer />
+        </FooterContainer>
+      )}
     </Layout>
   );
 };

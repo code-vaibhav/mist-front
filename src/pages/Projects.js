@@ -3,6 +3,8 @@ import { Typography, Box, Button, Chip } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { makeStyles } from "@mui/styles";
 import { Link } from "react-router-dom";
+import DeleteIcon from "@mui/icons-material/Delete";
+import { Popconfirm, notification } from "antd";
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -17,7 +19,19 @@ const useStyles = makeStyles(() => ({
 }));
 
 const Projects = () => {
+  const message = {
+    success: "Job Successfully Deleted",
+    error: "Error in deleting job, please try again",
+  };
   const [jobs, setJobs] = useState([]);
+  const [api, contextHolder] = notification.useNotification();
+
+  const openNotification = (type) => {
+    api[type]({
+      message: message[type],
+      placement: "topRight",
+    });
+  };
 
   const downloadResult = (row) => {
     fetch(`${process.env.REACT_APP_BACKEND_URL}/getresult/${row.uid}`, {
@@ -42,6 +56,31 @@ const Projects = () => {
       });
   };
 
+  const deleteJob = (row) => {
+    fetch(`${process.env.REACT_APP_BACKEND_URL}/deletejob/${row.uid}`, {
+      method: "POST",
+      credentials: "include",
+      cache: "no-cache",
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        data.sort(
+          (a, b) => new Date(b.submitted_at) - new Date(a.submitted_at)
+        );
+        setJobs(
+          data.map((job) => ({
+            ...job,
+            simulations: job.processes.length,
+          }))
+        );
+        openNotification("success");
+      })
+      .catch((err) => {
+        console.error(err);
+        openNotification("error");
+      });
+  };
+
   const classes = useStyles();
 
   const columns = [
@@ -58,7 +97,7 @@ const Projects = () => {
     {
       field: "status",
       headerName: "Sim Status",
-      flex: 1,
+      flex: 0,
       renderCell: (params) => (
         <Chip
           label={params.row.status}
@@ -106,8 +145,9 @@ const Projects = () => {
           disabled={params.row.status !== "Completed"}
           type="button"
           color="primary"
+          variant="outlined"
         >
-          Download Results
+          Download
         </Button>
       ),
       flex: 1,
@@ -117,8 +157,31 @@ const Projects = () => {
       headerName: "Project Details",
       renderCell: (params) => (
         <Link to={`/dashboard/${params.row.uid}`}>
-          <Button>View Details</Button>
+          <Button variant="outlined">View Details</Button>
         </Link>
+      ),
+      flex: 1,
+    },
+    {
+      field: "action",
+      headerName: "Actions",
+      renderCell: (params) => (
+        <Popconfirm
+          placement="topLeft"
+          title={`Delete the task ${params.row.filename}?`}
+          description="Are you sure to delete this task?"
+          okText="Yes"
+          cancelText="No"
+          onConfirm={() => deleteJob(params.row)}
+        >
+          <Button
+            variant="outlined"
+            color="warning"
+            startIcon={<DeleteIcon fontSize="inherit" />}
+          >
+            Delete
+          </Button>
+        </Popconfirm>
       ),
       flex: 1,
     },
@@ -148,6 +211,7 @@ const Projects = () => {
 
   return (
     <div className={classes.root}>
+      {contextHolder}
       <Typography variant="h4" component="h4" align="center" m={5}>
         Projects
       </Typography>

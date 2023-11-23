@@ -1,7 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 import Home from "./pages/Home";
 import FAQ from "./pages/FAQ";
-import Footer from "./components/Footer";
 import Dashboard from "./pages/Projects";
 import Wrapper from "./components/Wrapper";
 import DashboardWrapper from "./components/DashboardWrapper";
@@ -12,11 +11,16 @@ const App = () => {
   return (
     <div>
       <Routes>
-        <Route path="/" element={<Wrapper children={<Home />} />} />
+        <Route
+          path="/"
+          element={<Wrapper children={<Home />} footer={true} />}
+        />
         <Route
           path="/dashboard"
           element={
-            <DashboardWrapper children={<Wrapper children={<Dashboard />} />} />
+            <DashboardWrapper
+              children={<Wrapper children={<Dashboard />} footer={false} />}
+            />
           }
         />
         <Route
@@ -35,7 +39,6 @@ const App = () => {
         />
         <Route path="/faq" element={<Wrapper children={<FAQ />} />} />
       </Routes>
-      <Footer />
     </div>
   );
 };

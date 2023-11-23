@@ -38,6 +38,7 @@ a {
   font-size: 25px;
   margin-right: 5px;
 }
+
 @media (max-width: 450px) {
   .mobile {
     display: block;
