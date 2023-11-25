@@ -136,7 +136,7 @@ const Project = () => {
     }
 
     fetchInputs();
-    if (data.status === "Completed") fetchResults();
+    fetchResults();
   }, [uid]);
 
   const downloadFile = (file) => {
