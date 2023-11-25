@@ -276,7 +276,7 @@ const Project = () => {
                   <span>{file.name}</span>
                 </Button>
               ))}
-              {data.status !== "Completed" && (
+              {data.status === "Completed" && (
                 <Typography.Title level={4} style={{ marginBottom: "25px" }}>
                   Simulation Results:{" "}
                   <Button
@@ -305,21 +305,23 @@ const Project = () => {
                 </Button>
               ))}
             </div>
-            <Row>
-              {getSrc(results[simName]).map((url) => (
-                <Col span={12}>
-                  <Image
-                    style={{
-                      width: "100%",
-                      marginLeft: "5%",
-                      maxWidth: "500px",
-                    }}
-                    src={url}
-                    alt="figure"
-                  />
-                </Col>
-              ))}
-            </Row>
+            {data.status === "Completed" && (
+              <Row>
+                {getSrc(results[simName]).map((url) => (
+                  <Col span={12}>
+                    <Image
+                      style={{
+                        width: "100%",
+                        marginLeft: "5%",
+                        maxWidth: "500px",
+                      }}
+                      src={url}
+                      alt="figure"
+                    />
+                  </Col>
+                ))}
+              </Row>
+            )}
           </Flex>
           <Divider />
         </div>
