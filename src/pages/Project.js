@@ -15,8 +15,6 @@ import {
   Image,
 } from "antd";
 
-const socket = io(process.env.REACT_APP_BACKEND_URL);
-
 const Project = () => {
   const [inputs, setInputs] = useState({});
   const [results, setResults] = useState({});
@@ -138,12 +136,6 @@ const Project = () => {
         console.error(err);
       }
     }
-
-    socket.on("file_update", (updateUID) => {
-      if (updateUID === uid) {
-        fetchResults();
-      }
-    });
 
     fetchInputs();
     if (data.status !== "Queued") fetchResults();
