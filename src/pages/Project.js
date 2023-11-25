@@ -131,7 +131,6 @@ const Project = () => {
 
         await Promise.all(promises);
         setResults(results);
-        console.log(results);
       } catch (err) {
         console.error(err);
       }

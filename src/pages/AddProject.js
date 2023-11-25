@@ -32,7 +32,6 @@ const AddProject = () => {
   };
 
   const submitData = async (data) => {
-    console.log(data);
     setProcessing(true);
 
     try {
@@ -56,7 +55,6 @@ const AddProject = () => {
         credentials: "include",
       }).then((res) => res.json());
 
-      console.log(res);
       openNotification("success");
       navigate("/dashboard");
     } catch (err) {
