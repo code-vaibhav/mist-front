@@ -19,6 +19,13 @@ const useStyles = makeStyles(() => ({
 }));
 
 const Projects = () => {
+  const vms = process.env.REACT_APP_BACKEND_URLS.split(",")
+    .filter((vm) => vm)
+    .reduce((curr, obj) => {
+      curr[obj.split("-")[0]] = obj.split("-")[1];
+      return curr;
+    }, {});
+
   const message = {
     success: "Job Successfully Deleted",
     error: "Error in deleting job, please try again",
@@ -34,7 +41,7 @@ const Projects = () => {
   };
 
   const downloadResult = (row) => {
-    fetch(`${process.env.REACT_APP_BACKEND_URL}/getresult/${row.uid}`, {
+    fetch(`${vms[row.vm]}/getresult/${row.uid}`, {
       method: "GET",
       credentials: "include",
       cache: "no-cache",
@@ -57,7 +64,7 @@ const Projects = () => {
   };
 
   const deleteJob = (row) => {
-    fetch(`${process.env.REACT_APP_BACKEND_URL}/deletejob/${row.uid}`, {
+    fetch(`${vms[row.vm]}/deletejob/${row.uid}`, {
       method: "POST",
       credentials: "include",
       cache: "no-cache",
@@ -92,6 +99,11 @@ const Projects = () => {
     {
       field: "submitted_at",
       headerName: "Submitted At",
+      flex: 1,
+    },
+    {
+      field: "vm",
+      headerName: "Virtual Machine",
       flex: 1,
     },
     {
@@ -156,7 +168,7 @@ const Projects = () => {
       field: "details",
       headerName: "Project Details",
       renderCell: (params) => (
-        <Link to={`/dashboard/${params.row.uid}`}>
+        <Link to={`/dashboard/${params.row.uid}?vm=${params.row.vm}`}>
           <Button variant="outlined">View Details</Button>
         </Link>
       ),
@@ -188,25 +200,36 @@ const Projects = () => {
   ];
 
   useEffect(() => {
-    fetch(`${process.env.REACT_APP_BACKEND_URL}/getjobs`, {
-      method: "GET",
-      credentials: "include",
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        data.sort(
-          (a, b) => new Date(b.submitted_at) - new Date(a.submitted_at)
+    const fetchProjects = async () => {
+      const promises = [];
+      Object.keys(vms).forEach((vm) => {
+        promises.push(
+          new Promise(async (resolve, reject) => {
+            try {
+              const data = await fetch(`${vms[vm]}/getjobs`, {
+                method: "GET",
+                credentials: "include",
+              }).then((res) => res.json());
+
+              data.sort(
+                (a, b) => new Date(b.submitted_at) - new Date(a.submitted_at)
+              );
+              setJobs(
+                data.map((job) => ({
+                  ...job,
+                  simulations: job.processes.length,
+                  vm: vm,
+                }))
+              );
+              resolve();
+            } catch (err) {
+              reject(err);
+            }
+          })
         );
-        setJobs(
-          data.map((job) => ({
-            ...job,
-            simulations: job.processes.length,
-          }))
-        );
-      })
-      .catch((err) => {
-        console.error(err);
       });
+    };
+    fetchProjects();
   }, []);
 
   return (

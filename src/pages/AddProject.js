@@ -8,9 +8,10 @@ import {
   Divider,
   Upload,
   notification,
+  Select,
+  Spin,
 } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
-import { Spin } from "antd";
 import JSZip from "jszip";
 import { useNavigate } from "react-router-dom";
 
@@ -21,6 +22,13 @@ const AddProject = () => {
     error: "Error in submitting job, please try again",
   };
   const navigate = useNavigate();
+
+  const vms = process.env.REACT_APP_BACKEND_URLS.split(",")
+    .filter((vm) => vm)
+    .reduce((curr, obj) => {
+      curr[obj.split("-")[0]] = obj.split("-")[1];
+      return curr;
+    }, {});
 
   const [api, contextHolder] = notification.useNotification();
 
@@ -49,11 +57,12 @@ const AddProject = () => {
 
       const formData = new FormData();
       formData.append("zipFile", zipFile);
-      const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/postjob`, {
+
+      await fetch(`${vms[data.vm]}/postjob`, {
         method: "POST",
         body: formData,
         credentials: "include",
-      }).then((res) => res.json());
+      });
 
       openNotification("success");
       navigate("/dashboard");
@@ -108,6 +117,16 @@ const AddProject = () => {
             rules={[{ required: true, message: "Please input your username!" }]}
           >
             <Input type="number" placeholder="Simulations Count" />
+          </Form.Item>
+          <Form.Item
+            label="Select VM"
+            name="vm"
+            rules={[{ required: true, message: "Please input your username!" }]}
+          >
+            <Select
+              placeholder="Virtual Machine"
+              options={Object.keys(vms).map((vm) => ({ label: vm, value: vm }))}
+            />
           </Form.Item>
         </Space>
         <Divider></Divider>

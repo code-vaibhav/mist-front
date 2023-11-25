@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import JSZip from "jszip";
 import FileOutlined from "@ant-design/icons/FileOutlined";
 import DownloadOutlined from "@ant-design/icons/DownloadOutlined";
@@ -19,20 +19,19 @@ const Project = () => {
   const [results, setResults] = useState({});
   const [data, setData] = useState({});
   const { uid } = useParams();
+  let location = useLocation();
 
   useEffect(() => {
-    async function fetchInputs() {
+    async function fetchInputs(url) {
+      console.log(url);
       try {
-        const response = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/getjob/${uid}`,
-          {
-            method: "GET",
-            credentials: "include",
-          }
-        );
+        const response = await fetch(`${url}/getjob/${uid}`, {
+          method: "GET",
+          credentials: "include",
+        });
 
         const jobData = (
-          await fetch(`${process.env.REACT_APP_BACKEND_URL}/getjobs`, {
+          await fetch(`${url}/getjobs`, {
             method: "GET",
             credentials: "include",
           }).then((res) => res.json())
@@ -85,16 +84,13 @@ const Project = () => {
       }
     }
 
-    async function fetchResults() {
+    async function fetchResults(url) {
       try {
-        const blob = fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/getresult/${uid}`,
-          {
-            method: "GET",
-            credentials: "include",
-            cache: "no-cache",
-          }
-        ).then((res) => res.blob());
+        const blob = fetch(`${url}/getresult/${uid}`, {
+          method: "GET",
+          credentials: "include",
+          cache: "no-cache",
+        }).then((res) => res.blob());
 
         const zip = new JSZip();
         const zipData = await zip.loadAsync(blob);
@@ -134,9 +130,15 @@ const Project = () => {
         console.error(err);
       }
     }
+    const url = process.env.REACT_APP_BACKEND_URLS.split(",")
+      .filter((vm) => vm)
+      .reduce((curr, obj) => {
+        curr[obj.split("-")[0]] = obj.split("-")[1];
+        return curr;
+      }, {})[new URLSearchParams(location.search).get("vm")];
 
-    fetchInputs();
-    fetchResults();
+    fetchInputs(url);
+    fetchResults(url);
   }, [uid]);
 
   const downloadFile = (file) => {
@@ -172,7 +174,14 @@ const Project = () => {
   };
 
   const downloadInputs = () => {
-    fetch(`${process.env.REACT_APP_BACKEND_URL}/getjob/${uid}`, {
+    const url = process.env.REACT_APP_BACKEND_URLS.split(",")
+      .filter((vm) => vm)
+      .reduce((curr, obj) => {
+        curr[obj.split("-")[0]] = obj.split("-")[1];
+        return curr;
+      }, {})[new URLSearchParams(location.search).get("param")];
+
+    fetch(`${url}/getjob/${uid}`, {
       method: "GET",
       credentials: "include",
     })
@@ -187,7 +196,14 @@ const Project = () => {
   };
 
   const downloadResults = () => {
-    fetch(`${process.env.REACT_APP_BACKEND_URL}/getresult/${uid}`, {
+    const url = process.env.REACT_APP_BACKEND_URLS.split(",")
+      .filter((vm) => vm)
+      .reduce((curr, obj) => {
+        curr[obj.split("-")[0]] = obj.split("-")[1];
+        return curr;
+      }, {})[new URLSearchParams(location.search).get("param")];
+
+    fetch(`${url}/getresult/${uid}`, {
       method: "GET",
       credentials: "include",
     })
@@ -271,6 +287,7 @@ const Project = () => {
                   onClick={() => downloadFile(file)}
                   size="large"
                   color="primary"
+                  key={file.name}
                 >
                   <FileOutlined />
                   <span>{file.name}</span>
@@ -295,6 +312,7 @@ const Project = () => {
               )}
               {results[simName]?.map((file) => (
                 <Button
+                  key={file.name}
                   type="dashed"
                   onClick={() => downloadFile(file)}
                   size="large"
@@ -308,7 +326,7 @@ const Project = () => {
             {data.status === "Completed" && (
               <Row>
                 {getSrc(results[simName]).map((url) => (
-                  <Col span={12}>
+                  <Col span={12} key={url}>
                     <Image
                       style={{
                         width: "100%",
