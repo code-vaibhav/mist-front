@@ -137,7 +137,7 @@ const Project = () => {
     }
 
     fetchInputs();
-    if (data.status !== "Queued") fetchResults();
+    if (data.status === "Completed") fetchResults();
   }, [uid]);
 
   const downloadFile = (file) => {
@@ -277,7 +277,7 @@ const Project = () => {
                   <span>{file.name}</span>
                 </Button>
               ))}
-              {data.status !== "Queued" && (
+              {data.status === "Completed" && (
                 <Typography.Title level={4} style={{ marginBottom: "25px" }}>
                   Simulation Results:{" "}
                   <Button
