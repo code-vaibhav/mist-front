@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import JSZip from "jszip";
-import io from "socket.io-client";
 import FileOutlined from "@ant-design/icons/FileOutlined";
 import DownloadOutlined from "@ant-design/icons/DownloadOutlined";
 import {
@@ -277,7 +276,7 @@ const Project = () => {
                   <span>{file.name}</span>
                 </Button>
               ))}
-              {data.status === "Completed" && (
+              {data.status !== "Completed" && (
                 <Typography.Title level={4} style={{ marginBottom: "25px" }}>
                   Simulation Results:{" "}
                   <Button
