@@ -40,6 +40,47 @@ const Projects = () => {
     });
   };
 
+  const fetchProjects = async () => {
+    const promises = [];
+    Object.keys(vms).forEach((vm) => {
+      promises.push(
+        new Promise(async (resolve, reject) => {
+          try {
+            const data = await fetch(`${vms[vm]}/getjobs`, {
+              method: "GET",
+              credentials: "include",
+            }).then((res) => res.json());
+
+            resolve(
+              data.map((job) => ({
+                ...job,
+                simulations: job.processes.length,
+                vm: vm,
+              }))
+            );
+          } catch (err) {
+            reject(err);
+          }
+        })
+      );
+    });
+    Promise.all(promises)
+      .then((data) => {
+        setJobs(
+          data
+            .flat()
+            .sort((a, b) => new Date(b.submitted_at) - new Date(a.submitted_at))
+        );
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  };
+
+  useEffect(() => {
+    fetchProjects();
+  }, []);
+
   const downloadResult = (row) => {
     fetch(`${vms[row.vm]}/getresult/${row.uid}`, {
       method: "GET",
@@ -69,18 +110,9 @@ const Projects = () => {
       credentials: "include",
       cache: "no-cache",
     })
-      .then((res) => res.json())
-      .then((data) => {
-        data.sort(
-          (a, b) => new Date(b.submitted_at) - new Date(a.submitted_at)
-        );
-        setJobs(
-          data.map((job) => ({
-            ...job,
-            simulations: job.processes.length,
-          }))
-        );
+      .then((res) => {
         openNotification("success");
+        fetchProjects();
       })
       .catch((err) => {
         console.error(err);
@@ -198,39 +230,6 @@ const Projects = () => {
       flex: 1,
     },
   ];
-
-  useEffect(() => {
-    const fetchProjects = async () => {
-      const promises = [];
-      Object.keys(vms).forEach((vm) => {
-        promises.push(
-          new Promise(async (resolve, reject) => {
-            try {
-              const data = await fetch(`${vms[vm]}/getjobs`, {
-                method: "GET",
-                credentials: "include",
-              }).then((res) => res.json());
-
-              data.sort(
-                (a, b) => new Date(b.submitted_at) - new Date(a.submitted_at)
-              );
-              setJobs(
-                data.map((job) => ({
-                  ...job,
-                  simulations: job.processes.length,
-                  vm: vm,
-                }))
-              );
-              resolve();
-            } catch (err) {
-              reject(err);
-            }
-          })
-        );
-      });
-    };
-    fetchProjects();
-  }, []);
 
   return (
     <div className={classes.root}>
