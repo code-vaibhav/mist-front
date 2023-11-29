@@ -59,22 +59,24 @@ const Projects = () => {
               }))
             );
           } catch (err) {
-            reject(err);
+            resolve([]);
           }
         })
       );
     });
-    Promise.all(promises)
-      .then((data) => {
-        setJobs(
-          data
-            .flat()
-            .sort((a, b) => new Date(b.submitted_at) - new Date(a.submitted_at))
-        );
-      })
-      .catch((err) => {
-        console.error(err);
-      });
+    const results = await Promise.allSettled(promises);
+
+    const successfulResults = results
+      .filter((result) => result.status === "fulfilled")
+      .map((result) => result.value)
+      .flat();
+
+    // Update the state with successful results
+    setJobs(
+      successfulResults.sort(
+        (a, b) => new Date(b.submitted_at) - new Date(a.submitted_at)
+      )
+    );
   };
 
   useEffect(() => {
